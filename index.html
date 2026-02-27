@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Insulin Calculator</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0d1117;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+      color: #e6edf3;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 460px;
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .header {
+      background: #1f6feb;
+      padding: 1.5rem;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 1.4rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .header p {
+      font-size: 0.85rem;
+      opacity: 0.85;
+      margin-top: 0.3rem;
+    }
+
+    .section {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid #30363d;
+    }
+
+    .section-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #8b949e;
+      margin-bottom: 1rem;
+    }
+
+    .field { margin-bottom: 1rem; }
+    .field:last-child { margin-bottom: 0; }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      color: #8b949e;
+      margin-bottom: 0.4rem;
+    }
+
+    input {
+      width: 100%;
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: 0.65rem 0.9rem;
+      color: #e6edf3;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input:focus { border-color: #1f6feb; }
+
+    .btn {
+      width: 100%;
+      background: #1f6feb;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 0.85rem;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn:hover { background: #388bfd; }
+
+    .result {
+      padding: 1.5rem;
+      display: none;
+    }
+
+    .result.show { display: block; }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .result-box {
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 10px;
+      padding: 0.85rem 0.5rem;
+      text-align: center;
+    }
+
+    .result-box.highlight {
+      border-color: #1f6feb;
+      background: #1f2d45;
+    }
+
+    .result-label {
+      font-size: 0.7rem;
+      color: #8b949e;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.4rem;
+    }
+
+    .result-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #58a6ff;
+    }
+
+    .result-box.highlight .result-value { color: #fff; }
+
+    .result-unit {
+      font-size: 0.7rem;
+      color: #8b949e;
+      margin-top: 0.2rem;
+    }
+
+    .total-row {
+      background: #1f6feb;
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .total-label { font-size: 0.95rem; font-weight: 500; }
+    .total-value { font-size: 1.6rem; font-weight: 700; }
+
+    .note {
+      font-size: 0.75rem;
+      color: #8b949e;
+      text-align: center;
+      line-height: 1.5;
+      margin-bottom: 1rem;
+    }
+
+    .reset-btn {
+      width: 100%;
+      background: transparent;
+      border: 1px solid #30363d;
+      color: #8b949e;
+      border-radius: 8px;
+      padding: 0.65rem;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="header">
+      <h1>💉 Insulin Calculator</h1>
+      <p>Bolus + Correction Dose</p>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Your Settings</div>
+      <div class="field">
+        <label>Carb-to-Insulin Ratio (ICR) — grams per unit</label>
+        <input type="number" id="icr" placeholder="e.g. 10" />
+      </div>
+      <div class="field">
+        <label>Sensitivity Factor (ISF) — mg/dL per unit</label>
+        <input type="number" id="isf" placeholder="e.g. 50" />
+      </div>
+      <div class="field">
+        <label>Target Blood Sugar — mg/dL</label>
+        <input type="number" id="target" placeholder="e.g. 100" />
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Current Readings</div>
+      <div class="field">
+        <label>Carbs to eat — grams</label>
+        <input type="number" id="carbs" placeholder="e.g. 45" />
+      </div>
+      <div class="field">
+        <label>Current Blood Sugar — mg/dL</label>
+        <input type="number" id="bg" placeholder="e.g. 160" />
+      </div>
+    </div>
+
+    <div class="section" style="border-bottom: none;">
+      <button class="btn" onclick="calculate()">Calculate Dose</button>
+    </div>
+
+    <div class="result" id="result">
+      <div class="section-title">Dose Breakdown</div>
+      <div class="result-grid">
+        <div class="result-box">
+          <div class="result-label">Meal</div>
+          <div class="result-value" id="meal-dose">—</div>
+          <div class="result-unit">units</div>
+        </div>
+        <div class="result-box">
+          <div class="result-label">Correction</div>
+          <div class="result-value" id="correction-dose">—</div>
+          <div class="result-unit">units</div>
+        </div>
+        <div class="result-box highlight">
+          <div class="result-label">Total</div>
+          <div class="result-value" id="total-dose">—</div>
+          <div class="result-unit">units</div>
+        </div>
+      </div>
+      <div class="total-row">
+        <div class="total-label">Recommended Dose</div>
+        <div class="total-value"><span id="final-dose">—</span> units</div>
+      </div>
+      <p class="note">Always verify with your healthcare provider.<br/>Negative corrections are subtracted from your meal dose.</p>
+      <button class="reset-btn" onclick="reset()">Reset</button>
+    </div>
+  </div>
+
+  <script>
+    function calculate() {
+      const icr = parseFloat(document.getElementById('icr').value);
+      const isf = parseFloat(document.getElementById('isf').value);
+      const target = parseFloat(document.getElementById('target').value);
+      const carbs = parseFloat(document.getElementById('carbs').value);
+      const bg = parseFloat(document.getElementById('bg').value);
+
+      if (isNaN(icr) || isNaN(isf) || isNaN(target) || isNaN(carbs) || isNaN(bg)) {
+        alert('Please fill in all fields.');
+        return;
+      }
+
+      const mealDose = carbs / icr;
+      const correctionDose = (bg - target) / isf;
+      const total = Math.max(0, mealDose + correctionDose);
+
+      document.getElementById('meal-dose').textContent = mealDose.toFixed(1);
+      document.getElementById('correction-dose').textContent = (correctionDose >= 0 ? '+' : '') + correctionDose.toFixed(1);
+      document.getElementById('total-dose').textContent = total.toFixed(1);
+      document.getElementById('final-dose').textContent = total.toFixed(1);
+
+      document.getElementById('result').classList.add('show');
+    }
+
+    function reset() {
+      ['icr','isf','target','carbs','bg'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('result').classList.remove('show');
+    }
+  </script>
+</body>
+</html>
